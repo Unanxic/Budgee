@@ -12,9 +12,9 @@ val SheetModalBackground = Color(0xFF1E1740)
 
 // --- Text ---
 val TextPrimary = Color(0xFFEFEAFF)
-val TextSecondary = Color(0x73E9E2FF)   // rgba(233,226,255,.45)
-val TextMuted = Color(0x52E9E2FF)       // rgba(233,226,255,.32)
-val BorderColor = Color(0x1AE9E2FF)     // rgba(233,226,255,.08-.14) -> mid value .10
+val TextSecondary = Color(0x73E9E2FF)
+val TextMuted = Color(0x52E9E2FF)
+val BorderColor = Color(0x1AE9E2FF)
 
 // --- Accents ---
 // Violet — primary / nav / save / buttons / links
