@@ -2,10 +2,32 @@ package com.example.budgee.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// --- Backgrounds ---
+val Canvas = Color(0xFF0A0714)
+val AppBackground = Color(0xFF100B1C)
+val CardBackground = Color(0xFF1A1332)
+val ListRowBackground = Color(0xFF1C1536)
+val ArchivedRowBackground = Color(0xFF17112C)
+val SheetModalBackground = Color(0xFF1E1740)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// --- Text ---
+val TextPrimary = Color(0xFFEFEAFF)
+val TextSecondary = Color(0x73E9E2FF)   // rgba(233,226,255,.45)
+val TextMuted = Color(0x52E9E2FF)       // rgba(233,226,255,.32)
+val BorderColor = Color(0x1AE9E2FF)     // rgba(233,226,255,.08-.14) -> mid value .10
+
+// --- Accents ---
+// Violet — primary / nav / save / buttons / links
+val Violet = Color(0xFF7B4FE0)
+val VioletButton = Color(0xFF6B3FD1)
+val VioletLink = Color(0xFFB89EFF)
+
+// Mint — income / ok
+val Mint = Color(0xFF6FE8C8)
+
+// Amber — warning (usage >60%)
+val Amber = Color(0xFFF0C34D)
+
+// Rose — expense / critical / swipe-delete
+val Rose = Color(0xFFE08A9C)
+val RoseDelete = Color(0xFFB4485E)
