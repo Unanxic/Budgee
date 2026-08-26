@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Budgee</string>
+    <string name="budget_progress_usage_label">χρήση</string>
+    <string name="settings_button_label">Ρυθμίσεις</string>
+    <string name="bottom_nav_home">Αρχική</string>
+    <string name="bottom_nav_history">Ιστορικό</string>
 </resources>
