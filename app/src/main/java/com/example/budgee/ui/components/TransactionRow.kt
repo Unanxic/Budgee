@@ -36,6 +36,15 @@ import com.example.budgee.ui.theme.TextPrimary
 import com.example.budgee.ui.theme.TextSecondary
 import com.example.budgee.utils.toSignedEuroString
 
+/**
+ * A single transaction row: icon, reason, date, amount.
+ *
+ * When [onDelete] is provided, the row is wrapped in a swipe-to-delete
+ * gesture (used in the Home screen's editable transaction list). When
+ * [onDelete] is null, the row renders as plain, read-only content with
+ * no swipe gesture (used in archived month history, which is
+ * read-only).
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionRow(
@@ -43,9 +52,20 @@ fun TransactionRow(
     dateLabel: String,
     amount: Double,
     isIncome: Boolean,
-    onDelete: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDelete: (() -> Unit)? = null
 ) {
+    if (onDelete == null) {
+        TransactionRowContent(
+            reason = reason,
+            dateLabel = dateLabel,
+            amount = amount,
+            isIncome = isIncome,
+            modifier = modifier
+        )
+        return
+    }
+
     val dismissState = rememberSwipeToDismissBoxState()
 
     LaunchedEffect(dismissState.currentValue) {
@@ -95,12 +115,13 @@ private fun TransactionRowContent(
     reason: String,
     dateLabel: String,
     amount: Double,
-    isIncome: Boolean
+    isIncome: Boolean,
+    modifier: Modifier = Modifier
 ) {
     val accentColor = if (isIncome) Mint else Rose
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(CardBackground, RoundedCornerShape(16.dp))
             .padding(horizontal = 16.dp, vertical = 14.dp),
@@ -164,7 +185,6 @@ private fun TransactionRowPreview() {
                 dateLabel = "21 Αυγ",
                 amount = 120.00,
                 isIncome = true,
-                onDelete = {},
                 modifier = Modifier.padding(top = 8.dp)
             )
         }

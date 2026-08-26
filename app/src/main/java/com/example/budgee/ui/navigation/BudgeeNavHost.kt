@@ -1,5 +1,6 @@
 package com.example.budgee.ui.navigation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -10,17 +11,75 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.budgee.ui.components.BudgeeBottomNav
 import com.example.budgee.ui.components.BudgeeTab
+import com.example.budgee.ui.screens.ArchivedMonth
 import com.example.budgee.ui.screens.HistoryScreen
 import com.example.budgee.ui.screens.HomeScreen
+import com.example.budgee.ui.screens.MonthDetailScreen
+import com.example.budgee.ui.screens.mockArchivedMonths
 import com.example.budgee.ui.theme.AppBackground
 import kotlinx.coroutines.launch
+
+private object BudgeeDestinations {
+    const val TABS = "tabs"
+    const val MONTH_DETAIL = "month_detail/{monthId}"
+    fun monthDetailRoute(monthId: Long) = "month_detail/$monthId"
+    const val MONTH_ID_ARG = "monthId"
+}
 
 private val TABS = listOf(BudgeeTab.HOME, BudgeeTab.HISTORY)
 
 @Composable
 fun BudgeeNavHost() {
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = BudgeeDestinations.TABS,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppBackground),
+        exitTransition = slideOutOnReEnterHorizontallyTransition,
+        enterTransition = slideInHorizontallyTransition,
+        popExitTransition = slideOutHorizontallyTransition,
+        popEnterTransition = slideInOnReEnterHorizontallyTransition,
+    ) {
+        composable(BudgeeDestinations.TABS) {
+            TabsHost(
+                onMonthClick = { month ->
+                    navController.navigate(BudgeeDestinations.monthDetailRoute(month.id))
+                }
+            )
+        }
+        composable(
+            route = BudgeeDestinations.MONTH_DETAIL,
+            arguments = listOf(navArgument(BudgeeDestinations.MONTH_ID_ARG) {
+                type = NavType.LongType
+            })
+        ) { backStackEntry ->
+            val monthId = backStackEntry.arguments?.getLong(BudgeeDestinations.MONTH_ID_ARG)
+            val month = mockArchivedMonths().find { it.id == monthId }
+            if (month != null) {
+                MonthDetailScreen(
+                    month = month,
+                    onBackClick = { navController.popBackStack() },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TabsHost(
+    onMonthClick: (ArchivedMonth) -> Unit
+) {
     val pagerState = rememberPagerState(pageCount = { TABS.size })
     val coroutineScope = rememberCoroutineScope()
     val selectedTab = TABS[pagerState.currentPage]
@@ -49,7 +108,7 @@ fun BudgeeNavHost() {
         ) { page ->
             when (TABS[page]) {
                 BudgeeTab.HOME -> HomeScreen()
-                BudgeeTab.HISTORY -> HistoryScreen()
+                BudgeeTab.HISTORY -> HistoryScreen(onMonthClick = onMonthClick)
             }
         }
     }

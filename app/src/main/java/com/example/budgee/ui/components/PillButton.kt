@@ -24,22 +24,36 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.budgee.R
 import com.example.budgee.ui.theme.BorderSubtle
 import com.example.budgee.ui.theme.BudgeeTheme
 import com.example.budgee.ui.theme.FillFaint
 import com.example.budgee.ui.theme.FillFaintHover
 import com.example.budgee.ui.theme.TextSubtle
 
+/**
+ * Whether this PillButton shows its default leading icon, a custom one,
+ * or none at all. Defaults to the standard chevron-left ("back") icon,
+ * since that's the most common use case (e.g. the "← Πίσω" button on
+ * detail screens). Pass [Custom] or [None] to override per call site.
+ */
+sealed interface PillButtonIcon {
+    data object Default : PillButtonIcon
+    data class Custom(val painter: Painter) : PillButtonIcon
+    data object None : PillButtonIcon
+}
+
 @Composable
 fun PillButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    leadingIcon: Painter? = null,
+    icon: PillButtonIcon = PillButtonIcon.Default,
     enabled: Boolean = true
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -68,9 +82,14 @@ fun PillButton(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (leadingIcon != null) {
+        val iconPainter = when (icon) {
+            is PillButtonIcon.Default -> painterResource(R.drawable.ic_chevron_left)
+            is PillButtonIcon.Custom -> icon.painter
+            is PillButtonIcon.None -> null
+        }
+        if (iconPainter != null) {
             Icon(
-                painter = leadingIcon,
+                painter = iconPainter,
                 contentDescription = null,
                 tint = TextSubtle.copy(alpha = TextSubtle.alpha * alpha),
                 modifier = Modifier.size(15.dp)
@@ -91,8 +110,9 @@ fun PillButton(
 private fun PillButtonPreview() {
     BudgeeTheme {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            PillButton(text = "Ρυθμίσεις", onClick = {})
-            PillButton(text = "Φίλτρα", onClick = {}, enabled = false)
+            PillButton(text = "Πίσω", onClick = {})
+            PillButton(text = "Ρυθμίσεις", onClick = {}, icon = PillButtonIcon.None)
+            PillButton(text = "Φίλτρα", onClick = {}, enabled = false, icon = PillButtonIcon.None)
         }
     }
 }

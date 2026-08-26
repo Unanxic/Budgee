@@ -8,4 +8,12 @@
     <string name="home_balance_label">ΥΠΟΛΟΙΠΟ ΜΗΝΑ</string>
     <string name="action_income">Έσοδα</string>
     <string name="action_expense">Έξοδα</string>
+    <string name="history_title">Ιστορικό</string>
+    <string name="history_subtitle">Κλεισμένοι μήνες — ο τρέχων μήνας εμφανίζεται μετά το reset.</string>
+    <string name="history_set_label">ΟΡΙΣΤΗΚΕ</string>
+    <string name="history_closed_with_label">ΈΚΛΕΙΣΕ ΜΕ</string>
+    <string name="month_detail_back_label">Πίσω</string>
+    <string name="month_detail_set_label">ΟΡΙΣΤΗΚΕ</string>
+    <string name="month_detail_final_balance_label">ΤΕΛΙΚΟ ΥΠΟΛΟΙΠΟ</string>
+    <string name="month_detail_readonly_label">Αρχειοθετημένο — μόνο για ανάγνωση</string>
 </resources>
