@@ -4,4 +4,8 @@
     <string name="settings_button_label">Ρυθμίσεις</string>
     <string name="bottom_nav_home">Αρχική</string>
     <string name="bottom_nav_history">Ιστορικό</string>
+    <string name="transaction_delete_label">Διαγραφή</string>
+    <string name="home_balance_label">ΥΠΟΛΟΙΠΟ ΜΗΝΑ</string>
+    <string name="action_income">Έσοδα</string>
+    <string name="action_expense">Έξοδα</string>
 </resources>

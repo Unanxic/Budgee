@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.budgee.ui.screens.HomeScreen
+import com.example.budgee.ui.navigation.BudgeeNavHost
 import com.example.budgee.ui.theme.BudgeeTheme
 
 class MainActivity : ComponentActivity() {
@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             BudgeeTheme {
-                HomeScreen()
+                BudgeeNavHost()
             }
         }
     }

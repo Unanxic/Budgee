@@ -1,8 +1,6 @@
 package com.example.budgee.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,7 +13,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -23,21 +20,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.budgee.R
+import com.example.budgee.utils.pulsateClick
 import com.example.budgee.ui.theme.BudgeeTheme
 import com.example.budgee.ui.theme.Canvas
 import com.example.budgee.ui.theme.Mint
 import com.example.budgee.ui.theme.Rose
 
-/**
- * Primary action button used for "+ Έσοδα" / "− Έξοδα" on the Home screen.
- * Meant to be used inside a Row where both buttons share the available
- * width equally (via Modifier.weight(1f) on each), with the icon+label
- * centered inside.
- *
- * - Income variant: fully filled mint pill, dark text/icon.
- * - Expense variant: low-opacity rose pill (tinted, not solid fill),
- *   rose-colored text/icon — matching the Figma design.
- */
 @Composable
 fun BudgetActionButton(
     label: String,
@@ -51,11 +39,7 @@ fun BudgetActionButton(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
-            )
+            .pulsateClick(onClick)
             .background(backgroundColor, RoundedCornerShape(16.dp))
             .padding(vertical = 14.dp),
         horizontalArrangement = Arrangement.Center,
