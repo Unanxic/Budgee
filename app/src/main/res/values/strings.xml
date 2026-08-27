@@ -16,4 +16,16 @@
     <string name="month_detail_set_label">ΟΡΙΣΤΗΚΕ</string>
     <string name="month_detail_final_balance_label">ΤΕΛΙΚΟ ΥΠΟΛΟΙΠΟ</string>
     <string name="month_detail_readonly_label">Αρχειοθετημένο — μόνο για ανάγνωση</string>
+    <string name="settings_sheet_title">Μηνιαίο ποσό</string>
+    <string name="settings_sheet_subtitle">Ρύθμισε το budget και την ημέρα ανανέωσης.</string>
+    <string name="settings_sheet_reset_day_label">ΗΜΕΡΑ RESET</string>
+    <string name="settings_sheet_explanation">Στις %1$d κάθε μήνα, το υπόλοιπο θα επανέρχεται αυτόματα στο πλήρες ποσό και ο τρέχων μήνας θα αρχειοθετείται.</string>
+    <string name="settings_sheet_save_button">Αποθήκευση</string>
+    <string name="add_transaction_income_tab">Έσοδα</string>
+    <string name="add_transaction_expense_tab">Έξοδα</string>
+    <string name="add_transaction_reason_placeholder">Αιτιολογία (π.χ. Σούπερ μάρκετ)</string>
+    <string name="add_transaction_confirm_income">Καταχώρηση εσόδου</string>
+    <string name="add_transaction_confirm_expense">Καταχώρηση εξόδου</string>
+    <string name="numpad_decimal_separator">,</string>
+    <string name="numpad_backspace_description">Διαγραφή</string>
 </resources>

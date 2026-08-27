@@ -1,5 +1,6 @@
 package com.example.budgee.ui.animations
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -8,6 +9,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 
 /**
@@ -31,6 +33,9 @@ object BudgeeAnimations {
 
     /** Used for the press-down scale shrink/grow on buttons. */
     val pressScaleSpec: AnimationSpec<Float> = tween(durationMillis = 120)
+
+    /** Used for smooth color transitions, e.g. toggle selection state. */
+    val colorChangeSpec: AnimationSpec<Color> = tween(durationMillis = 250)
 }
 
 /**
@@ -94,6 +99,20 @@ fun animatePressScaleAsState(targetValue: Float, label: String): State<Float> {
     return animateFloatAsState(
         targetValue = targetValue,
         animationSpec = BudgeeAnimations.pressScaleSpec,
+        label = label
+    )
+}
+
+/**
+ * Animates a Color value using Budgee's standard "color change" timing,
+ * used e.g. for smooth transitions between selected/unselected toggle
+ * states.
+ */
+@Composable
+fun animateBudgeeColorAsState(targetValue: Color, label: String): State<Color> {
+    return animateColorAsState(
+        targetValue = targetValue,
+        animationSpec = BudgeeAnimations.colorChangeSpec,
         label = label
     )
 }
