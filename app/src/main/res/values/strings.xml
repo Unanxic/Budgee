@@ -28,4 +28,9 @@
     <string name="add_transaction_confirm_expense">Καταχώρηση εξόδου</string>
     <string name="numpad_decimal_separator">,</string>
     <string name="numpad_backspace_description">Διαγραφή</string>
+    <string name="home_empty_title">Καλωσήρθες στο Ταμείο</string>
+    <string name="home_empty_subtitle">Όρισε τον μηνιαίο σου προϋπολογισμό για να ξεκινήσεις.</string>
+    <string name="home_empty_cta">Ορισμός προϋπολογισμού</string>
+    <string name="history_empty_title">Δεν υπάρχουν κλεισμένοι μήνες</string>
+    <string name="history_empty_subtitle">Όταν κλείσει ο τρέχων μήνας, θα εμφανιστεί εδώ.</string>
 </resources>
