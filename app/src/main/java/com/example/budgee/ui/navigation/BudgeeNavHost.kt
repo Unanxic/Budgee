@@ -22,11 +22,13 @@ import com.example.budgee.ui.screens.ArchivedMonth
 import com.example.budgee.ui.screens.HistoryScreen
 import com.example.budgee.ui.screens.HomeScreen
 import com.example.budgee.ui.screens.MonthDetailScreen
+import com.example.budgee.ui.screens.SplashScreen
 import com.example.budgee.ui.screens.mockArchivedMonths
 import com.example.budgee.ui.theme.AppBackground
 import kotlinx.coroutines.launch
 
 private object BudgeeDestinations {
+    const val SPLASH = "splash"
     const val TABS = "tabs"
     const val MONTH_DETAIL = "month_detail/{monthId}"
     fun monthDetailRoute(monthId: Long) = "month_detail/$monthId"
@@ -41,15 +43,24 @@ fun BudgeeNavHost() {
 
     NavHost(
         navController = navController,
-        startDestination = BudgeeDestinations.TABS,
+        startDestination = BudgeeDestinations.SPLASH,
         modifier = Modifier
             .fillMaxSize()
             .background(AppBackground),
-        exitTransition = slideOutOnReEnterHorizontallyTransition,
         enterTransition = slideInHorizontallyTransition,
-        popExitTransition = slideOutHorizontallyTransition,
+        exitTransition = slideOutHorizontallyTransition,
         popEnterTransition = slideInOnReEnterHorizontallyTransition,
+        popExitTransition = slideOutOnReEnterHorizontallyTransition
     ) {
+        composable(BudgeeDestinations.SPLASH) {
+            SplashScreen(
+                onFinished = {
+                    navController.navigate(BudgeeDestinations.TABS) {
+                        popUpTo(BudgeeDestinations.SPLASH) { inclusive = true }
+                    }
+                }
+            )
+        }
         composable(BudgeeDestinations.TABS) {
             TabsHost(
                 onMonthClick = { month ->
