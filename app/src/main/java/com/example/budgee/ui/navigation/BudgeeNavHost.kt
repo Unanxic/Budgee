@@ -18,12 +18,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.budgee.ui.components.BudgeeBottomNav
 import com.example.budgee.ui.components.BudgeeTab
-import com.example.budgee.ui.screens.ArchivedMonth
 import com.example.budgee.ui.screens.HistoryScreen
 import com.example.budgee.ui.screens.HomeScreen
 import com.example.budgee.ui.screens.MonthDetailScreen
 import com.example.budgee.ui.screens.SplashScreen
-import com.example.budgee.ui.screens.mockArchivedMonths
 import com.example.budgee.ui.theme.AppBackground
 import kotlinx.coroutines.launch
 
@@ -63,8 +61,8 @@ fun BudgeeNavHost() {
         }
         composable(BudgeeDestinations.TABS) {
             TabsHost(
-                onMonthClick = { month ->
-                    navController.navigate(BudgeeDestinations.monthDetailRoute(month.id))
+                onMonthClick = { monthId ->
+                    navController.navigate(BudgeeDestinations.monthDetailRoute(monthId))
                 }
             )
         }
@@ -73,23 +71,18 @@ fun BudgeeNavHost() {
             arguments = listOf(navArgument(BudgeeDestinations.MONTH_ID_ARG) {
                 type = NavType.LongType
             })
-        ) { backStackEntry ->
-            val monthId = backStackEntry.arguments?.getLong(BudgeeDestinations.MONTH_ID_ARG)
-            val month = mockArchivedMonths().find { it.id == monthId }
-            if (month != null) {
-                MonthDetailScreen(
-                    month = month,
-                    onBackClick = { navController.popBackStack() },
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
+        ) {
+            MonthDetailScreen(
+                onBackClick = { navController.popBackStack() },
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 }
 
 @Composable
 private fun TabsHost(
-    onMonthClick: (ArchivedMonth) -> Unit
+    onMonthClick: (Long) -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { TABS.size })
     val coroutineScope = rememberCoroutineScope()
@@ -119,7 +112,9 @@ private fun TabsHost(
         ) { page ->
             when (TABS[page]) {
                 BudgeeTab.HOME -> HomeScreen()
-                BudgeeTab.HISTORY -> HistoryScreen(onMonthClick = onMonthClick)
+                BudgeeTab.HISTORY -> HistoryScreen(
+                    onMonthClick = { month -> onMonthClick(month.id) }
+                )
             }
         }
     }

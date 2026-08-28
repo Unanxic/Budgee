@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,12 +25,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.budgee.R
+import com.example.budgee.domain.model.Transaction
+import com.example.budgee.presentation.home.HomeUiState
+import com.example.budgee.presentation.home.HomeViewModel
 import com.example.budgee.ui.components.AddTransactionSheet
 import com.example.budgee.ui.components.AnimatedAmountText
 import com.example.budgee.ui.components.BudgetActionButton
 import com.example.budgee.ui.components.BudgetProgressRing
+import com.example.budgee.ui.components.EmptyStateView
 import com.example.budgee.ui.components.HomeTopBar
+import com.example.budgee.ui.components.LoadingView
 import com.example.budgee.ui.components.SettingsSheet
 import com.example.budgee.ui.components.TransactionRow
 import com.example.budgee.ui.theme.BudgeeTheme
@@ -40,108 +46,148 @@ import com.example.budgee.utils.appendDecimal
 import com.example.budgee.utils.appendDigit
 import com.example.budgee.utils.backspaceAmount
 import com.example.budgee.utils.toAmountDouble
+import com.example.budgee.utils.toShortDateLabel
+
+/**
+ * Stateful entry point: reads [HomeViewModel] via Hilt and delegates
+ * rendering to [HomeScreenContent]. Kept separate from the stateless
+ * content so previews can supply a fixed [HomeUiState] without Hilt.
+ */
+@Composable
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    HomeScreenContent(
+        uiState = uiState,
+        onAddTransaction = viewModel::addTransaction,
+        onDeleteTransaction = viewModel::deleteTransaction,
+        onUpdateSettings = viewModel::updateSettings,
+        modifier = modifier
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(
+private fun HomeScreenContent(
+    uiState: HomeUiState,
+    onAddTransaction: (reason: String, amount: Double, isIncome: Boolean) -> Unit,
+    onDeleteTransaction: (id: Long) -> Unit,
+    onUpdateSettings: (monthlyBudget: Double, resetDay: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var transactions by remember { mutableStateOf(mockTransactions()) }
-    var monthlyBudget by remember { mutableDoubleStateOf(500.00) }
-    var resetDay by remember { mutableIntStateOf(21) }
-
-    val balance = monthlyBudget - transactions.filter { !it.isIncome }.sumOf { it.amount } +
-            transactions.filter { it.isIncome }.sumOf { it.amount }
-    val usedFraction = ((monthlyBudget - balance) / monthlyBudget).toFloat().coerceIn(0f, 1f)
-
-    // TODO: periodLabel/periodRange are hardcoded mock values for now.
-    // Replace with real values derived from resetDay once
-    // SettingsViewModel/BudgetRepository are wired up.
-    val periodLabel = "Αύγουστος 2026"
-    val periodRange = "21 Αυγ – 20 Σεπ"
-
     var showSettingsSheet by remember { mutableStateOf(false) }
-    var settingsAmountText by remember { mutableStateOf(monthlyBudget.toInt().toString()) }
-    var settingsResetDay by remember { mutableIntStateOf(resetDay) }
+    var settingsAmountText by remember { mutableStateOf("") }
+    var settingsResetDay by remember { mutableIntStateOf(1) }
 
     var showAddTransactionSheet by remember { mutableStateOf(false) }
     var addTransactionIsIncome by remember { mutableStateOf(true) }
     var addTransactionAmountText by remember { mutableStateOf("") }
     var addTransactionReason by remember { mutableStateOf("") }
 
-    Column(
-        modifier = modifier.fillMaxSize()
-    ) {
-        HomeTopBar(
-            periodLabel = periodLabel,
-            periodRange = periodRange,
-            onSettingsClick = {
-                settingsAmountText = monthlyBudget.toInt().toString()
-                settingsResetDay = resetDay
-                showSettingsSheet = true
-            }
-        )
+    when (uiState) {
+        is HomeUiState.Loading -> {
+            LoadingView(modifier = modifier.fillMaxSize())
+        }
 
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            item {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = stringResource(R.string.home_balance_label),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = TextSecondary
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    AnimatedAmountText(amount = balance)
-                    Spacer(modifier = Modifier.height(24.dp))
-                    BudgetProgressRing(usedFraction = usedFraction)
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        BudgetActionButton(
-                            label = stringResource(R.string.action_income),
-                            isIncome = true,
-                            onClick = {
-                                addTransactionIsIncome = true
-                                addTransactionAmountText = ""
-                                addTransactionReason = ""
-                                showAddTransactionSheet = true
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        BudgetActionButton(
-                            label = stringResource(R.string.action_expense),
-                            isIncome = false,
-                            onClick = {
-                                addTransactionIsIncome = false
-                                addTransactionAmountText = ""
-                                addTransactionReason = ""
-                                showAddTransactionSheet = true
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
-            }
-
-            items(transactions, key = { it.id }) { transaction ->
-                TransactionRow(
-                    reason = transaction.reason,
-                    dateLabel = transaction.dateLabel,
-                    amount = transaction.amount,
-                    isIncome = transaction.isIncome,
-                    onDelete = {
-                        transactions = transactions.filter { it.id != transaction.id }
+        is HomeUiState.Empty -> {
+            Column(modifier = modifier.fillMaxSize()) {
+                HomeTopBar(
+                    periodLabel = "",
+                    periodRange = "",
+                    onSettingsClick = {
+                        settingsAmountText = ""
+                        settingsResetDay = 1
+                        showSettingsSheet = true
                     }
                 )
+                EmptyStateView(
+                    modifier = Modifier.fillMaxSize(),
+                    title = stringResource(R.string.home_empty_title),
+                    subtitle = stringResource(R.string.home_empty_subtitle),
+                    actionLabel = stringResource(R.string.home_empty_cta),
+                    onActionClick = {
+                        settingsAmountText = ""
+                        settingsResetDay = 1
+                        showSettingsSheet = true
+                    }
+                )
+            }
+        }
+
+        is HomeUiState.Content -> {
+            Column(modifier = modifier.fillMaxSize()) {
+                HomeTopBar(
+                    periodLabel = uiState.periodLabel,
+                    periodRange = uiState.periodRange,
+                    onSettingsClick = {
+                        settingsAmountText = uiState.monthlyBudget.toInt().toString()
+                        showSettingsSheet = true
+                    }
+                )
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    item {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = stringResource(R.string.home_balance_label),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = TextSecondary
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            AnimatedAmountText(amount = uiState.balance)
+                            Spacer(modifier = Modifier.height(24.dp))
+                            BudgetProgressRing(usedFraction = uiState.usedFraction)
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            Row(modifier = Modifier.fillMaxWidth()) {
+                                BudgetActionButton(
+                                    label = stringResource(R.string.action_income),
+                                    isIncome = true,
+                                    onClick = {
+                                        addTransactionIsIncome = true
+                                        addTransactionAmountText = ""
+                                        addTransactionReason = ""
+                                        showAddTransactionSheet = true
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                BudgetActionButton(
+                                    label = stringResource(R.string.action_expense),
+                                    isIncome = false,
+                                    onClick = {
+                                        addTransactionIsIncome = false
+                                        addTransactionAmountText = ""
+                                        addTransactionReason = ""
+                                        showAddTransactionSheet = true
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(24.dp))
+                        }
+                    }
+
+                    items(uiState.transactions, key = { it.id }) { transaction ->
+                        TransactionRow(
+                            reason = transaction.reason,
+                            dateLabel = transaction.timestampMillis.toShortDateLabel(),
+                            amount = transaction.amount,
+                            isIncome = transaction.isIncome,
+                            onDelete = { onDeleteTransaction(transaction.id) }
+                        )
+                    }
+                }
             }
         }
     }
@@ -153,8 +199,8 @@ fun HomeScreen(
             resetDay = settingsResetDay,
             onResetDayChange = { settingsResetDay = it },
             onSave = {
-                monthlyBudget = settingsAmountText.toDoubleOrNull() ?: monthlyBudget
-                resetDay = settingsResetDay
+                val amount = settingsAmountText.toDoubleOrNull() ?: 0.0
+                onUpdateSettings(amount, settingsResetDay)
                 showSettingsSheet = false
             },
             onDismissRequest = { showSettingsSheet = false }
@@ -180,14 +226,7 @@ fun HomeScreen(
             onConfirm = {
                 val amount = addTransactionAmountText.toAmountDouble()
                 if (amount > 0.0 && addTransactionReason.isNotBlank()) {
-                    val newTransaction = Transaction(
-                        id = (transactions.maxOfOrNull { it.id } ?: 0L) + 1,
-                        reason = addTransactionReason,
-                        dateLabel = periodLabel,
-                        amount = amount,
-                        isIncome = addTransactionIsIncome
-                    )
-                    transactions = listOf(newTransaction) + transactions
+                    onAddTransaction(addTransactionReason, amount, addTransactionIsIncome)
                     showAddTransactionSheet = false
                 }
             },
@@ -196,10 +235,51 @@ fun HomeScreen(
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF100B1C, widthDp = 390, heightDp = 844)
+@Preview(name = "Home - Content", showBackground = true, backgroundColor = 0xFF100B1C, widthDp = 390, heightDp = 844)
 @Composable
-private fun HomeScreenPreview() {
+private fun HomeScreenContentPreview() {
     BudgeeTheme {
-        HomeScreen()
+        HomeScreenContent(
+            uiState = HomeUiState.Content(
+                periodLabel = "Αύγουστος 2026",
+                periodRange = "21 Αυγ – 20 Σεπ",
+                balance = 373.00,
+                monthlyBudget = 500.00,
+                usedFraction = 0.25f,
+                transactions = listOf(
+                    Transaction(1, "Κινηματογράφος", 14.50, false, System.currentTimeMillis()),
+                    Transaction(2, "Μισθός (bonus)", 120.00, true, System.currentTimeMillis())
+                )
+            ),
+            onAddTransaction = { _, _, _ -> },
+            onDeleteTransaction = {},
+            onUpdateSettings = { _, _ -> }
+        )
+    }
+}
+
+@Preview(name = "Home - Empty", showBackground = true, backgroundColor = 0xFF100B1C, widthDp = 390, heightDp = 844)
+@Composable
+private fun HomeScreenEmptyPreview() {
+    BudgeeTheme {
+        HomeScreenContent(
+            uiState = HomeUiState.Empty,
+            onAddTransaction = { _, _, _ -> },
+            onDeleteTransaction = {},
+            onUpdateSettings = { _, _ -> }
+        )
+    }
+}
+
+@Preview(name = "Home - Loading", showBackground = true, backgroundColor = 0xFF100B1C, widthDp = 390, heightDp = 844)
+@Composable
+private fun HomeScreenLoadingPreview() {
+    BudgeeTheme {
+        HomeScreenContent(
+            uiState = HomeUiState.Loading,
+            onAddTransaction = { _, _, _ -> },
+            onDeleteTransaction = {},
+            onUpdateSettings = { _, _ -> }
+        )
     }
 }
