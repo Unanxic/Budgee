@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -21,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +38,8 @@ import com.example.budgee.ui.theme.CardBackground
 import com.example.budgee.ui.theme.TextPrimary
 import com.example.budgee.ui.theme.TextSecondary
 import com.example.budgee.ui.theme.Violet
+
+private val RESET_DAYS = (1..31).toList()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,10 +108,21 @@ fun SettingsSheet(
         )
         Spacer(modifier = Modifier.height(8.dp))
 
+        val listState = rememberLazyListState()
+        LaunchedEffect(resetDay) {
+            val targetIndex = RESET_DAYS.indexOf(resetDay)
+            if (targetIndex != -1) {
+                val visibleItems = listState.layoutInfo.visibleItemsInfo.size.coerceAtLeast(1)
+                val centeredIndex = (targetIndex - visibleItems / 2).coerceIn(0, RESET_DAYS.lastIndex)
+                listState.scrollToItem(centeredIndex)
+            }
+        }
+
         LazyRow(
+            state = listState,
             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
         ) {
-            items((1..31).toList()) { day ->
+            items(RESET_DAYS) { day ->
                 ResetDayChip(
                     day = day,
                     selected = day == resetDay,

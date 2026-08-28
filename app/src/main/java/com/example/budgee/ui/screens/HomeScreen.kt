@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -80,7 +79,7 @@ private fun HomeScreenContent(
 ) {
     var showSettingsSheet by remember { mutableStateOf(false) }
     var settingsAmountText by remember { mutableStateOf("") }
-    var settingsResetDay by remember { mutableIntStateOf(1) }
+    var settingsResetDay by remember { mutableStateOf(1) }
 
     var showAddTransactionSheet by remember { mutableStateOf(false) }
     var addTransactionIsIncome by remember { mutableStateOf(true) }
@@ -124,6 +123,7 @@ private fun HomeScreenContent(
                     periodRange = uiState.periodRange,
                     onSettingsClick = {
                         settingsAmountText = uiState.monthlyBudget.toInt().toString()
+                        settingsResetDay = uiState.resetDay
                         showSettingsSheet = true
                     }
                 )
@@ -245,6 +245,7 @@ private fun HomeScreenContentPreview() {
                 periodRange = "21 Αυγ – 20 Σεπ",
                 balance = 373.00,
                 monthlyBudget = 500.00,
+                resetDay = 21,
                 usedFraction = 0.25f,
                 transactions = listOf(
                     Transaction(1, "Κινηματογράφος", 14.50, false, System.currentTimeMillis()),

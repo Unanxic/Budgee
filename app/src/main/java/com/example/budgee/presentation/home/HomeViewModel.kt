@@ -75,6 +75,7 @@ class HomeViewModel @Inject constructor(
             periodRange = formatPeriodRange(periodStart, periodEnd),
             balance = balance,
             monthlyBudget = settings.monthlyBudget,
+            resetDay = settings.resetDay,
             usedFraction = usedFraction,
             transactions = transactions.sortedByDescending { it.timestampMillis }
         )

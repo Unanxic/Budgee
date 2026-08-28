@@ -13,6 +13,7 @@ sealed interface HomeUiState {
         val periodRange: String,
         val balance: Double,
         val monthlyBudget: Double,
+        val resetDay: Int,
         val usedFraction: Float,
         val transactions: List<Transaction>
     ) : HomeUiState
